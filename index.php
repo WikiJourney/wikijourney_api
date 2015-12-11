@@ -321,7 +321,7 @@ See documentation on http://wikijourney.eu/api/documentation.php
 			}
 		}
 		$output['poi']['nb_poi'] = count($poi_array);
-		$output['poi']['poi_info'] = $poi_array; //Output 
+		$output['poi']['poi_info'] = array_values($poi_array); //Output 
 		
 	}
 	
