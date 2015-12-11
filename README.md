@@ -12,6 +12,11 @@ The API designed for a tourism software, based on Wikipedia information.
 
 This API uses data from WikiVoyage, Wikidata and Wikipedia. 
 
+## Contributing
+If you want to contribute, first: Thank you! Some advices though:
+ - Please create a branch on your fork, with a relevant name (avoid working directly on the `master` branch).
+ - Please push to our `dev` branch, so we can integrate it with other features before merging into the master for a new release.
+
 Links :
 - [WikiJourney website](http://wikijourney.eu)
 - [Facebook page](https://www.facebook.com/WikiJourney)
