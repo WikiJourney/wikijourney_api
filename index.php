@@ -54,6 +54,9 @@ See documentation on http://wikijourney.eu/api/documentation.php
 		
 			if(isset($_GET['long']))$user_longitude = secureInput($_GET['long']);
 				else $error = "Longitude missing";
+			
+			if(!(is_numeric($user_longitude) && is_numeric($user_latitude)))
+				$error = "Error : latitude and longitude should be numeric values.";
 		}
 		
 		//Not required
@@ -70,8 +73,8 @@ See documentation on http://wikijourney.eu/api/documentation.php
 		if(isset($_GET['thumbnailWidth'])) $thumbnailWidth = secureInput($_GET['thumbnailWidth']);
 			else $thumbnailWidth = 500;
 		
-		if(!(is_numeric($range) && is_numeric($user_latitude) && is_numeric($user_longitude) && is_numeric($maxPOI) && is_numeric($thumbnailWidth)))
-			$error = "Error : latitude, longitude, maxPOI, thumbnailWidth and range should be numeric values.";
+		if(!(is_numeric($range) && is_numeric($maxPOI) && is_numeric($thumbnailWidth)))
+			$error = "Error : maxPOI, thumbnailWidth and range should be numeric values.";
 			
 
 		
