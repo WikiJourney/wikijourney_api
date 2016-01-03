@@ -16,6 +16,7 @@ of WFLabs to find POI around (thanks btw).
 
 BETA
 
+1.1.1 : Minor bugfix and error gestion.
 1.1.0 : Added Cache support. The API is now a lot quicker if POI have already been visited.
 1.0.0 : Added thumbnail for POIs. New technology implemented, making the API faster.
 
@@ -30,7 +31,7 @@ ALPHA
 
 -------------> INPUT :
 
-Use this link : http://wikijourney.eu/api/api.php?PARAMETERS
+Use this link : http://api.wikijourney.eu/?PARAMETERS
 
 Parameters could be (INS is for If Not Specified) :
 
@@ -45,8 +46,8 @@ Parameters could be (INS is for If Not Specified) :
 		- [INS 500 ]	thumbnailWidth : maximum width of thumbnails from Wikipedia's article. Value is in px, and has to be numeric.
 		- [OPTIONNAL]	fakeError : 	use it if you need to test error on your device. It will simulate an error during the process.
 		
-Example : 	http://wikijourney.eu/api/api.php?latitude=2&longitude=2&lg=fr
-Example :	http://wikijourney.eu/api/api.php?place=Washington&lg=fr
+Example : 	http://api.wikijourney.eu/?latitude=2&longitude=2&lg=fr
+Example :	http://api.wikijourney.eu/?place=Washington&lg=en
 
 -------------> OUTPUT :
 

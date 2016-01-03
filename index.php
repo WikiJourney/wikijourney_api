@@ -1,10 +1,10 @@
 <?php
 /* 
 ============================ WIKIJOURNEY API =========================
-Version Beta 1.1
+Version Beta 1.1.1
 ======================================================================
 
-See documentation on http://wikijourney.eu/api/documentation.php
+See documentation on http://api.wikijourney.eu/documentation.php
 */		
 	
 	error_reporting(0); //No need error reporting, or else it will crash the JSON export
@@ -24,7 +24,7 @@ See documentation on http://wikijourney.eu/api/documentation.php
 	//============> INFO SECTION
 	$output['infos']['source'] 		= "WikiJourney API";
 	$output['infos']['link']		= "http://wikijourney.eu/";
-	$output['infos']['api_version']		= "Beta 1.1";
+	$output['infos']['api_version']	= "Beta 1.1.1";
 	
 	//============> FAKE ERROR
 	if(isset($_GET['fakeError']) && $_GET['fakeError'] == "true")
@@ -75,9 +75,7 @@ See documentation on http://wikijourney.eu/api/documentation.php
 		
 		if(!(is_numeric($range) && is_numeric($maxPOI) && is_numeric($thumbnailWidth)))
 			$error = "Error : maxPOI, thumbnailWidth and range should be numeric values.";
-			
 
-		
 	}
 	
 	//============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
