@@ -1,10 +1,10 @@
 <?php
 /* 
 ============================ WIKIJOURNEY API =========================
-Version Beta 1.1
+Version Beta 1.1.1
 ======================================================================
 
-See documentation on http://wikijourney.eu/api/documentation.php
+See documentation on http://api.wikijourney.eu/documentation.php
 */		
 	
 	error_reporting(0); //No need error reporting, or else it will crash the JSON export
@@ -20,56 +20,63 @@ See documentation on http://wikijourney.eu/api/documentation.php
 		
 		return $string;
 	}
-	
-	//Required informations
-	if(isset($_GET['place'])) //If it's a place
-	{
-		$name = secureInput($_GET['place']);
-		$osm_array_json = file_get_contents("http://nominatim.openstreetmap.org/search?format=json&q=\"" . urlencode($name)."\""); //Contacting Nominatim API to have coordinates
-		$osm_array = json_decode($osm_array_json, true);
-		
-		if (!isset($osm_array[0]["lat"]))
-			$error = "Location doesn't exist";
-		else
-		{
-			$user_latitude = $osm_array[0]["lat"];
-			$user_longitude = $osm_array[0]["lon"];
-		}
-	}
-	else //Else it's long/lat
-	{
-		if(isset($_GET['lat']))	$user_latitude = secureInput($_GET['lat']);
-			else $error = "Latitude missing";
-	
-		if(isset($_GET['long']))$user_longitude = secureInput($_GET['long']);
-			else $error = "Longitude missing";
-	}
-	
-	//Not required
-	if(isset($_GET['range'])) 	$range = secureInput($_GET['range']);
-		else $range = 1;
-	if(isset($_GET['maxPOI'])) 	$maxPOI = secureInput($_GET['maxPOI']);
-		else $maxPOI = 10;
-	if(isset($_GET['lg'])) 		$language = secureInput($_GET['lg']);
-		else $language = 'en';
-	if(isset($_GET['displayImg'])) $displayImg = secureInput($_GET['displayImg']);
-		else $displayImg = 0;
-	if(isset($_GET['wikivoyage'])) $wikivoyageSupport = secureInput($_GET['wikivoyage']);
-		else $wikivoyageSupport = 0;
-	if(isset($_GET['thumbnailWidth'])) $thumbnailWidth = secureInput($_GET['thumbnailWidth']);
-		else $thumbnailWidth = 500;
-	
-	if(!(is_numeric($range) && is_numeric($user_latitude) && is_numeric($user_longitude) && is_numeric($maxPOI) && is_numeric($thumbnailWidth)))
-		$error = "Error : latitude, longitude, maxPOI, thumbnailWidth and range should be numeric values.";
 		
 	//============> INFO SECTION
 	$output['infos']['source'] 		= "WikiJourney API";
 	$output['infos']['link']		= "http://wikijourney.eu/";
-	$output['infos']['api_version']		= "Beta 1.1";
+	$output['infos']['api_version']	= "Beta 1.1.1";
 	
 	//============> FAKE ERROR
 	if(isset($_GET['fakeError']) && $_GET['fakeError'] == "true")
 		$error = "Error ! If you want to see all the error messages that can be sent by our API, please refer to the source code on our GitHub repository.";
+	else
+	{
+	
+	//============> REQUIRED INFORMATIONS
+		if(isset($_GET['place'])) //If it's a place
+		{
+			$name = secureInput($_GET['place']);
+			$osm_array_json = file_get_contents("http://nominatim.openstreetmap.org/search?format=json&q=\"" . urlencode($name)."\""); //Contacting Nominatim API to have coordinates
+			$osm_array = json_decode($osm_array_json, true);
+			
+			if (!isset($osm_array[0]["lat"]))
+				$error = "Location doesn't exist";
+			else
+			{
+				$user_latitude = $osm_array[0]["lat"];
+				$user_longitude = $osm_array[0]["lon"];
+			}
+		}
+		else //Else it's long/lat
+		{
+			if(isset($_GET['lat']))	$user_latitude = secureInput($_GET['lat']);
+				else $error = "Latitude missing";
+		
+			if(isset($_GET['long']))$user_longitude = secureInput($_GET['long']);
+				else $error = "Longitude missing";
+			
+			if(!(is_numeric($user_longitude) && is_numeric($user_latitude)))
+				$error = "Error : latitude and longitude should be numeric values.";
+		}
+		
+		//Not required
+		if(isset($_GET['range'])) 	$range = secureInput($_GET['range']);
+			else $range = 1;
+		if(isset($_GET['maxPOI'])) 	$maxPOI = secureInput($_GET['maxPOI']);
+			else $maxPOI = 10;
+		if(isset($_GET['lg'])) 		$language = secureInput($_GET['lg']);
+			else $language = 'en';
+		if(isset($_GET['displayImg'])) $displayImg = secureInput($_GET['displayImg']);
+			else $displayImg = 0;
+		if(isset($_GET['wikivoyage'])) $wikivoyageSupport = secureInput($_GET['wikivoyage']);
+			else $wikivoyageSupport = 0;
+		if(isset($_GET['thumbnailWidth'])) $thumbnailWidth = secureInput($_GET['thumbnailWidth']);
+			else $thumbnailWidth = 500;
+		
+		if(!(is_numeric($range) && is_numeric($maxPOI) && is_numeric($thumbnailWidth)))
+			$error = "Error : maxPOI, thumbnailWidth and range should be numeric values.";
+
+	}
 	
 	//============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
 	if(!isset($error))
