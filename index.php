@@ -1,7 +1,7 @@
 <?php
 /*
 ============================ WIKIJOURNEY API =========================
-Version Beta 1.1.1
+Version Beta 1.1.2
 ======================================================================
 
 See documentation on http://api.wikijourney.eu/documentation.php
@@ -9,22 +9,14 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
     error_reporting(0); // No need error reporting, or else it will crash the JSON export
     header('Content-Type: application/json'); // Set the header to UTF8
-    $handler_db = mysqli_connect('localhost', 'wikijourney_web', '', 'wikijourney_cache'); // Connect to the DB
+    $dbh = new PDO('mysql:host=localhost;dbname=wikijourney_cache', 'wikijourney_web', '');
 
     require 'multiCurl.php';
-
-    function secureInput($string)
-    {
-        $string = addcslashes($string, '%_"');
-        // Add more securities here
-
-        return $string;
-    }
 
     // ============> INFO SECTION
     $output['infos']['source'] = 'WikiJourney API';
     $output['infos']['link'] = 'http://wikijourney.eu/';
-    $output['infos']['api_version'] = 'Beta 1.1.1';
+    $output['infos']['api_version'] = 'Beta 1.1.2';
 
     // ============> FAKE ERROR
     if (isset($_GET['fakeError']) && $_GET['fakeError'] == 'true') {
@@ -35,7 +27,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
         if (isset($_GET['place'])) {
             // If it's a place
 
-            $name = secureInput($_GET['place']);
+            $name = strval($_GET['place']);
             $osm_array_json = file_get_contents('http://nominatim.openstreetmap.org/search?format=json&q="'.urlencode($name).'"'); // Contacting Nominatim API to have coordinates
             $osm_array = json_decode($osm_array_json, true);
 
@@ -49,13 +41,13 @@ See documentation on http://api.wikijourney.eu/documentation.php
             // Else it's long/lat
 
             if (isset($_GET['lat'])) {
-                $user_latitude = secureInput($_GET['lat']);
+                $user_latitude = floatval($_GET['lat']);
             } else {
                 $error = 'Latitude missing';
             }
 
             if (isset($_GET['long'])) {
-                $user_longitude = secureInput($_GET['long']);
+                $user_longitude = floatval($_GET['long']);
             } else {
                 $error = 'Longitude missing';
             }
@@ -67,32 +59,24 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
         // Not required
         if (isset($_GET['range'])) {
-            $range = secureInput($_GET['range']);
+            $range = intval($_GET['range']);
         } else {
             $range = 1;
         }
         if (isset($_GET['maxPOI'])) {
-            $maxPOI = secureInput($_GET['maxPOI']);
+            $maxPOI = intval($_GET['maxPOI']);
         } else {
             $maxPOI = 10;
         }
-        if (isset($_GET['lg'])) {
-            $language = secureInput($_GET['lg']);
-        } else {
-            $language = 'en';
+        $language = 'en';
+        if (isset($_GET['lg']) && in_array($_GET['lg'], ['en', 'fr', 'zh'])) {
+            $language = $_GET['lg'];
         }
-        if (isset($_GET['displayImg'])) {
-            $displayImg = secureInput($_GET['displayImg']);
-        } else {
-            $displayImg = 0;
-        }
-        if (isset($_GET['wikivoyage'])) {
-            $wikivoyageSupport = secureInput($_GET['wikivoyage']);
-        } else {
-            $wikivoyageSupport = 0;
-        }
+        $table = 'cache_'.$language;
+        $displayImg = (isset($_GET['displayImg']) && $_GET['displayImg'] === 1) ? 1 : 0;
+        $wikivoyageSupport = (isset($_GET['wikivoyage']) && $_GET['wikivoyage'] === 1) ? 1 : 0;
         if (isset($_GET['thumbnailWidth'])) {
-            $thumbnailWidth = secureInput($_GET['thumbnailWidth']);
+            $thumbnailWidth = intval($_GET['thumbnailWidth']);
         } else {
             $thumbnailWidth = 500;
         }
@@ -105,8 +89,8 @@ See documentation on http://api.wikijourney.eu/documentation.php
     // ============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
     if (!isset($error)) {
         // ==================================> Put in the output the user location (can be useful)
-        $output['user_location']['latitude'] = floatval($user_latitude);
-        $output['user_location']['longitude'] = floatval($user_longitude);
+        $output['user_location']['latitude'] = $user_latitude;
+        $output['user_location']['longitude'] = $user_longitude;
 
         // ==================================> Wikivoyage requests : find travel guides around
         if ($wikivoyageSupport == 1) {
@@ -114,9 +98,9 @@ See documentation on http://api.wikijourney.eu/documentation.php
                 // We add description and image
 
                 $wikivoyageRequest = 'https://en.wikivoyage.org/w/api.php?action=query&format=json&' // Base
-.'prop=coordinates|info|pageterms|pageimages|langlinks&'    //Props list
+.'prop=coordinates|info|pageterms|pageimages|langlinks&' // Props list
 .'piprop=thumbnail&pithumbsize=144&pilimit=50&inprop=url&wbptterms=description' // Properties dedicated to image, url and description
-.'&llprop=url'//Properties dedicated to langlinks
+.'&llprop=url' // Properties dedicated to langlinks
 ."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=10000&ggslimit=50"; // Properties dedicated to geosearch
             } else {
                 // Simplified request
@@ -205,18 +189,19 @@ See documentation on http://api.wikijourney.eu/documentation.php
                 $id = $poi_id_array_clean[$i];
 
                 // =============> We check if the db is online. If not, then bypass the cache.
-                if ($handler_db) {
+                if ($dbh) {
 
                     // ==> We look in the cache to know if the POI is there
-                    $answer = mysqli_query($handler_db, 'SELECT * FROM cache_'.$language." WHERE id=$id");
-                    $dataPOI = mysqli_fetch_assoc($answer);
+                    $stmt = $dbh->prepare('SELECT * FROM '.$table.' WHERE id = ?');
+                    $stmt->execute([$id]);
+                    $dataPOI = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     // ==> If we have it we can display it
                     if (count($dataPOI) != 0) {
                         $poi_array[$i] = $dataPOI;
                     }
 
-                    mysqli_free_result($answer);
+                    unset($stmt);
                 }
 
                 // =============> If the POI is not in the cache, or if the database is unreachable, then contact APIs.
@@ -319,11 +304,12 @@ See documentation on http://api.wikijourney.eu/documentation.php
                         $poi_array[$i]['id'] = $poi_id_array_clean[$i];
                         $poi_array[$i]['image_url'] = $image_url;
 
-                        if ($handler_db) {
+                        if ($dbh) {
                             // Insert this POI in the cache
 
-                            $sql_query = 'INSERT INTO cache_'.$language." VALUES ($id,$temp_latitude,$temp_longitude,'".mysqli_real_escape_string($handler_db, $name)."','".mysqli_real_escape_string($handler_db, $temp_sitelink)."','".mysqli_real_escape_string($handler_db, $type_name)."','".mysqli_real_escape_string($handler_db, $temp_poi_type_id)."','".mysqli_real_escape_string($handler_db, $image_url)."',NOW())";
-                            @mysqli_query($handler_db, $sql_query); // No error display, or else it crashes the JSON.
+                            $stmt = $dbh->prepare('INSERT INTO '.$table.' (id, latitude, longitude, name, sitelink, type_name, type_id, image_url, lastupdate)'
+                                                 .'VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+                            $stmt->execute([$id, $temp_latitude, $temp_longitude, $name, $temp_sitelink, $type_name, $temp_poi_type_id, $image_url]);
                         }
                     }
                 }
@@ -342,7 +328,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
     echo json_encode($output); // Encode in JSON. (user will get it by file_get_contents, curl, wget, or whatever)
 
-    mysqli_close($handler_db); // Close the database.
+    unset($dbh); // Close the database.
 
     // Next line is a legacy, please don't touch.
     /* yolo la police */;
