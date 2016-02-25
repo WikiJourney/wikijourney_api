@@ -1,13 +1,13 @@
 <pre>
 			Documentation - WikiJourney API
-			
-			
+
+
 This documentation refers to the API of Wikijourney's website.
 You can enter a position (latitude and longitude), it will return
 the point of interest around, with informations, including POI
 type, description, and link to the Wikipedia's page when available.
 Since the Alpha 0.0.3 version, this API is also able to look for
-WikiVoyage guides around the user's position. 
+WikiVoyage guides around the user's position.
 
 This API is based on datas from WikiData, and uses the system
 of WFLabs to find POI around (thanks btw).
@@ -22,7 +22,7 @@ BETA
 
 ALPHA
 
-0.0.5 : Added the fake error function. 
+0.0.5 : Added the fake error function.
 0.0.4 : Added Nominatim support
 0.0.3 : Added WikiVoyage informations.
 0.0.2 : Error gestion. More information in the output.
@@ -35,18 +35,18 @@ Use this link : http://api.wikijourney.eu/?PARAMETERS
 
 Parameters could be (INS is for If Not Specified) :
 
-		- [REQUIRED]	lat : 		user's latitude	
+		- [REQUIRED]	lat : 		user's latitude
 		- [REQUIRED]	long : 		user's longitude
 		- [OPTIONNAL]	place :		If you want to do a request with a place name instead of coordinates. Uses OSM nominatim system.
-		- [INS 1km ]	range : 	Range around we're gonna find POI in kilometers	
-		- [INS 10  ]	maxPOI : 	number max of POI 						
-		- [INS en  ] 	lg :		language used 	
+		- [INS 1km ]	range : 	Range around we're gonna find POI in kilometers
+		- [INS 10  ]	maxPOI : 	number max of POI
+		- [INS en  ] 	lg :		language used
 		- [INS 0   ] 	wikivoyage :	contact or no WikiVoyage API. Value 0 or 1.
-		- [INS 0   ] 	displayImg :	download or no thumbnail adress from WikiVoyage. Value 0 or 1.	
+		- [INS 0   ] 	displayImg :	download or no thumbnail adress from WikiVoyage. Value 0 or 1.
 		- [INS 500 ]	thumbnailWidth : maximum width of thumbnails from Wikipedia's article. Value is in px, and has to be numeric.
 		- [OPTIONNAL]	fakeError : 	use it if you need to test error on your device. It will simulate an error during the process.
-		
-Example : 	http://api.wikijourney.eu/?latitude=2&longitude=2&lg=fr
+
+Example : 	http://api.wikijourney.eu/?lat=2&lon=2&lg=fr
 Example :	http://api.wikijourney.eu/?place=Washington&lg=en
 
 -------------> OUTPUT :
@@ -83,23 +83,23 @@ Structure :
 - err_check
 	- value (true if there's an error)
 	- msg (defined only if value is set on true) : contains the error message
-	
+
 Example :
 
-{  
-   "infos":{  
+{
+   "infos":{
       "source":"WikiJourney API",
       "link":"http:\/\/wikijourney.eu\/",
       "api_version":"alpha 0.0.2"
    },
-   "user_location":{  
+   "user_location":{
       "latitude":50,
       "longitude":2
    },
-   "guides":{  
+   "guides":{
       "nb_guides":1,
-      "guides_info":[  
-         {  
+      "guides_info":[
+         {
             "pageid":19684,
             "title":"Lille",
             "sitelink":"https:\/\/en.wikivoyage.org\/wiki\/Lille",
@@ -108,10 +108,10 @@ Example :
          }
       ]
    },
-   "poi":{  
+   "poi":{
       "nb_poi":1,
-      "poi_info":[  
-         {  
+      "poi_info":[
+         {
             "latitude":50.007283,
             "longitude":1.997088,
             "name":"Longpre-les-Corps Saints British Cemetery",
@@ -123,7 +123,7 @@ Example :
          }
       ]
    },
-   "err_check":{  
+   "err_check":{
       "value":false
    }
 }
