@@ -68,13 +68,15 @@ See documentation on http://api.wikijourney.eu/documentation.php
         } else {
             $maxPOI = 10;
         }
+
         $language = 'en';
-        if (isset($_GET['lg']) && in_array($_GET['lg'], ['en', 'fr', 'zh'])) {
+        if (isset($_GET['lg']) && in_array($_GET['lg'], ['en', 'fr', 'zh','de','es'])) {
             $language = $_GET['lg'];
         }
         $table = 'cache_'.$language;
         $displayImg = (isset($_GET['displayImg']) && $_GET['displayImg'] === 1) ? 1 : 0;
         $wikivoyageSupport = (isset($_GET['wikivoyage']) && $_GET['wikivoyage'] === 1) ? 1 : 0;
+
         if (isset($_GET['thumbnailWidth'])) {
             $thumbnailWidth = intval($_GET['thumbnailWidth']);
         } else {
@@ -197,7 +199,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
                     $dataPOI = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     // ==> If we have it we can display it
-                    if (count($dataPOI) != 0) {
+                    if ($stmt->rowCount != 0) {
                         $poi_array[$i] = $dataPOI;
                     }
 
