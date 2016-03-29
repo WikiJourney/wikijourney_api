@@ -99,7 +99,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
             if ($displayImg == 1) {
                 // We add description and image
 
-                $wikivoyageRequest = 'https://en.wikivoyage.org/w/api.php?action=query&format=json&' // Base
+                $wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
 .'prop=coordinates|info|pageterms|pageimages|langlinks&' // Props list
 .'piprop=thumbnail&pithumbsize=144&pilimit=50&inprop=url&wbptterms=description' // Properties dedicated to image, url and description
 .'&llprop=url' // Properties dedicated to langlinks
@@ -107,7 +107,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
             } else {
                 // Simplified request
 
-                $wikivoyageRequest = 'https://en.wikivoyage.org/w/api.php?action=query&format=json&' // Base
+                $wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
 .'prop=coordinates|info|langlinks&' // Props list
 .'inprop=url' // Properties dedicated to url
 .'&llprop=url' // Properties dedicated to langlinks
