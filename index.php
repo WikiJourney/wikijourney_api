@@ -6,12 +6,18 @@ Version Beta 1.1.2
 
 See documentation on http://api.wikijourney.eu/documentation.php
 */
+    
+    require 'multiCurl.php';
 
     error_reporting(0); // No need error reporting, or else it will crash the JSON export
     header('Content-Type: application/json'); // Set the header to UTF8
-    $dbh = new PDO('mysql:host=localhost;dbname=wikijourney_cache', 'wikijourney_web', '');
-
-    require 'multiCurl.php';
+   
+    // ============> Connect to DB. If unreachable, the script will work anyway.
+    try {
+        $dbh = new PDO('mysql:host=localhost;dbname=wikijourney_cache', 'wikijourney_web', '');
+    } catch (PDOException $e) {
+        $dbh = 0;
+    }
 
     // ============> INFO SECTION
     $output['infos']['source'] = 'WikiJourney API';
@@ -180,7 +186,8 @@ See documentation on http://api.wikijourney.eu/documentation.php
         $poi_id_array_json = file_get_contents("http://wdq.wmflabs.org/api?q=around[625,$user_latitude,$user_longitude,$range]"); // Returns a $poi_id_array_clean array with a list of wikidata pages ID within a $range km range from user location
         if ($poi_id_array_json == false) {
             $error = "API WMFlabs isn't responding.";
-        } else {
+        } 
+        else {
             $poi_id_array = json_decode($poi_id_array_json, true);
             $poi_id_array_clean = $poi_id_array['items'];
             $nb_poi = count($poi_id_array_clean);
@@ -190,22 +197,22 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
                 // =============> We check if the db is online. If not, then bypass the cache.
                 if ($dbh) {
-
                     // ==> We look in the cache to know if the POI is there
                     $stmt = $dbh->prepare('SELECT * FROM '.$table.' WHERE id = ?');
                     $stmt->execute([$id]);
                     $dataPOI = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     // ==> If we have it we can display it
-                    if (count($dataPOI) != 0) {
+                    if ($dataPOI != null) {
                         $poi_array[$i] = $dataPOI;
+                        $poi_array[$i]['cache'] = true;
                     }
 
                     unset($stmt);
                 }
 
                 // =============> If the POI is not in the cache, or if the database is unreachable, then contact APIs.
-                if ($poi_array[$i] == null) {
+                if (!isset($poi_array[$i])) {
 
                     // =============> First call, we're gonna fetch geoloc infos, type ID, description and sitelink
 
@@ -262,7 +269,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
                     // =============> Now we make a second call to fetch images and types' titles
 
                     // ==> With the sitelink, we make the image's url
-                        $temp_url_explode = explode('/', $temp_sitelink);
+                    $temp_url_explode = explode('/', $temp_sitelink);
                     $temp_url_end = $temp_url_explode[count($temp_url_explode) - 1];
 
                     // ==> Calling APIs
@@ -303,6 +310,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
                         $poi_array[$i]['type_id'] = $temp_poi_type_id;
                         $poi_array[$i]['id'] = $poi_id_array_clean[$i];
                         $poi_array[$i]['image_url'] = $image_url;
+                        $poi_array[$i]['cache'] = false;
 
                         if ($dbh) {
                             // Insert this POI in the cache
