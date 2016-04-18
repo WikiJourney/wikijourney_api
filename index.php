@@ -11,7 +11,8 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
     error_reporting(0); // No need error reporting, or else it will crash the JSON export
     header('Content-Type: application/json'); // Set the header to UTF8
-   
+    $wikiSupportedLanguages = array('aa','ab','ace','ady','af','ak','als','am','an','ang','ar','arc','arz','as','ast','av','ay','az','azb','ba','bar','bat-smg','bcl','be','be-x-old','bg','bh','bi','bjn','bm','bn','bo','bpy','br','bs','bug','bxr','ca','cbk-zam','cdo','ce','ceb','ch','cho','chr','chy','ckb','co','cr','crh','cs','csb','cu','cv','cy','da','de','diq','dsb','dv','dz','ee','el','eml','en','eo','es','et','eu','ext','fa','ff','fi','fiu-vor','fj','fo','fr','frp','frr','fur','fy','ga','gag','gan','gd','gl','glk','gn','gom','got','gu','gv','ha','hak','haw','he','hi','hif','ho','hr','hsb','ht','hu','hy','hz','ia','id','ie','ig','ii','ik','ilo','io','is','it','iu','ja','jbo','jv','ka','kaa','kab','kbd','kg','ki','kj','kk','kl','km','kn','ko','koi','kr','krc','ks','ksh','ku','kv','kw','ky','la','lad','lb','lbe','lez','lg','li','lij','lmo','ln','lo','lrc','lt','ltg','lv','mai','map-bms','mdf','mg','mh','mhr','mi','min','mk','ml','mn','mo','mr','mrj','ms','mt','mus','mwl','my','myv','mzn','na','nah','nap','nds','nds-nl','ne','new','ng','nl','nn','no','nov','nrm','nso','nv','ny','oc','om','or','os','pa','pag','pam','pap','pcd','pdc','pfl','pi','pih','pl','pms','pnb','pnt','ps','pt','qu','rm','rmy','rn','ro','roa-rup','roa-tara','ru','rue','rw','sa','sah','sc','scn','sco','sd','se','sg','sh','si','simple','sk','sl','sm','sn','so','sq','sr','srn','ss','st','stq','su','sv','sw','szl','ta','te','tet','tg','th','ti','tk','tl','tn','to','tpi','tr','ts','tt','tum','tw','ty','tyv','udm','ug','uk','ur','uz','ve','vec','vep','vi','vls','vo','wa','war','wo','wuu','xal','xh','xmf','yi','yo','za','zea','zh','zh-classical','zh-min-nan','zh-yue','zu');
+
     // ============> Connect to DB. If unreachable, the script will work anyway.
     try {
         $dbh = new PDO('mysql:host=localhost;dbname=wikijourney_cache', 'wikijourney_web', '');
@@ -27,7 +28,8 @@ See documentation on http://api.wikijourney.eu/documentation.php
     // ============> FAKE ERROR
     if (isset($_GET['fakeError']) && $_GET['fakeError'] == 'true') {
         $error = 'Error ! If you want to see all the error messages that can be sent by our API, please refer to the source code on our GitHub repository.';
-    } else {
+    } 
+    else {
 
     // ============> REQUIRED INFORMATIONS
         if (isset($_GET['place'])) {
@@ -63,22 +65,23 @@ See documentation on http://api.wikijourney.eu/documentation.php
             }
         }
 
-        // Not required
+    // ============> OPTIONNAL PARAMETERS
+        
+        //==> Range
         if (isset($_GET['range'])) {
             $range = intval($_GET['range']);
         } else {
             $range = 1;
         }
+
+        //==> Max POI
         if (isset($_GET['maxPOI'])) {
             $maxPOI = intval($_GET['maxPOI']);
         } else {
             $maxPOI = 10;
         }
-        $language = 'en';
-        if (isset($_GET['lg']) && in_array($_GET['lg'], ['en', 'fr', 'zh'])) {
-            $language = $_GET['lg'];
-        }
-        $table = 'cache_'.$language;
+        
+        //==> Display images, wikivoyage support and thumbnail width
         $displayImg = (isset($_GET['displayImg']) && $_GET['displayImg'] === 1) ? 1 : 0;
         $wikivoyageSupport = (isset($_GET['wikivoyage']) && $_GET['wikivoyage'] === 1) ? 1 : 0;
         if (isset($_GET['thumbnailWidth'])) {
@@ -90,6 +93,39 @@ See documentation on http://api.wikijourney.eu/documentation.php
         if (!(is_numeric($range) && is_numeric($maxPOI) && is_numeric($thumbnailWidth))) {
             $error = 'Error : maxPOI, thumbnailWidth and range should be numeric values.';
         }
+
+        //==> Languages 
+        if (isset($_GET['lg']) && in_array($_GET['lg'], $wikiSupportedLanguages)) {
+            $language = $_GET['lg'];
+        }
+        else
+            $error = "Error : language is not supported.";
+
+        $table = 'cache_'.$language;
+
+        if($dbh)
+        {
+            // ==> We create the table if it doesn't exist
+
+            $stmt = $dbh->prepare("CREATE TABLE IF NOT EXISTS $table ("
+                ."`id` bigint(9) NOT NULL,"
+                ."`latitude` float NOT NULL,"
+                ."`longitude` float NOT NULL,"
+                ."`name` text COLLATE utf8_bin NOT NULL,"
+                ."`sitelink` text COLLATE utf8_bin NOT NULL,"
+                ."`type_name` text COLLATE utf8_bin NOT NULL,"
+                ."`type_id` bigint(9) NOT NULL,"
+                ."`image_url` text COLLATE utf8_bin NOT NULL,"
+                ."`lastupdate` date NOT NULL,"
+                ."PRIMARY KEY (`id`)"
+                .") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin");
+
+            if (!$stmt->execute()) {
+               print_r($stmt->errorInfo());
+            }
+            unset($stmt);
+        }
+
     }
 
     // ============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
@@ -207,13 +243,13 @@ See documentation on http://api.wikijourney.eu/documentation.php
                         $poi_array[$i] = $dataPOI;
                         $poi_array[$i]['cache'] = true;
                     }
-
+                    
                     unset($stmt);
                 }
 
                 // =============> If the POI is not in the cache, or if the database is unreachable, then contact APIs.
                 if (!isset($poi_array[$i])) {
-
+                    
                     // =============> First call, we're gonna fetch geoloc infos, type ID, description and sitelink
 
                     $URL_list = [
