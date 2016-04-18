@@ -97,35 +97,34 @@ See documentation on http://api.wikijourney.eu/documentation.php
         //==> Languages 
         if (isset($_GET['lg']) && in_array($_GET['lg'], $wikiSupportedLanguages)) {
             $language = $_GET['lg'];
+
+            $table = 'cache_'.$language;
+
+            if($dbh)
+            {
+                // ==> We create the table if it doesn't exist
+
+                $stmt = $dbh->prepare("CREATE TABLE IF NOT EXISTS $table ("
+                    ."`id` bigint(9) NOT NULL,"
+                    ."`latitude` float NOT NULL,"
+                    ."`longitude` float NOT NULL,"
+                    ."`name` text COLLATE utf8_bin NOT NULL,"
+                    ."`sitelink` text COLLATE utf8_bin NOT NULL,"
+                    ."`type_name` text COLLATE utf8_bin NOT NULL,"
+                    ."`type_id` bigint(9) NOT NULL,"
+                    ."`image_url` text COLLATE utf8_bin NOT NULL,"
+                    ."`lastupdate` date NOT NULL,"
+                    ."PRIMARY KEY (`id`)"
+                    .") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin");
+
+                if (!$stmt->execute()) {
+                   print_r($stmt->errorInfo());
+                }
+                unset($stmt);
+            }
         }
         else
             $error = "Error : language is not supported.";
-
-        $table = 'cache_'.$language;
-
-        if($dbh)
-        {
-            // ==> We create the table if it doesn't exist
-
-            $stmt = $dbh->prepare("CREATE TABLE IF NOT EXISTS $table ("
-                ."`id` bigint(9) NOT NULL,"
-                ."`latitude` float NOT NULL,"
-                ."`longitude` float NOT NULL,"
-                ."`name` text COLLATE utf8_bin NOT NULL,"
-                ."`sitelink` text COLLATE utf8_bin NOT NULL,"
-                ."`type_name` text COLLATE utf8_bin NOT NULL,"
-                ."`type_id` bigint(9) NOT NULL,"
-                ."`image_url` text COLLATE utf8_bin NOT NULL,"
-                ."`lastupdate` date NOT NULL,"
-                ."PRIMARY KEY (`id`)"
-                .") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin");
-
-            if (!$stmt->execute()) {
-               print_r($stmt->errorInfo());
-            }
-            unset($stmt);
-        }
-
     }
 
     // ============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
