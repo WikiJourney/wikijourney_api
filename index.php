@@ -47,7 +47,7 @@ else {
 		}
 	} else {
 		// Else it's long/lat
-		if (!(is_numeric($user_longitude) && is_numeric($user_latitude))) {
+		if (!(is_numeric($_GET['lat']) && is_numeric($_GET['long']))) {
 			$error = 'Error : latitude and longitude should be numeric values.';
 		}
 
