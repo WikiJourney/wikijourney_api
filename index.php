@@ -47,6 +47,9 @@ else {
 		}
 	} else {
 		// Else it's long/lat
+		if (!(is_numeric($user_longitude) && is_numeric($user_latitude))) {
+			$error = 'Error : latitude and longitude should be numeric values.';
+		}
 
 		if (isset($_GET['lat'])) {
 			$user_latitude = floatval($_GET['lat']);
@@ -60,9 +63,6 @@ else {
 			$error = 'Longitude missing';
 		}
 
-		if (!(is_numeric($user_longitude) && is_numeric($user_latitude))) {
-			$error = 'Error : latitude and longitude should be numeric values.';
-		}
 	}
 
 // ============> OPTIONNAL PARAMETERS
@@ -95,36 +95,44 @@ else {
 	}
 
 	//==> Languages 
-	if (isset($_GET['lg']) && in_array($_GET['lg'], $wikiSupportedLanguages)) {
-		$language = $_GET['lg'];
+	if(isset($_GET['lg']))
+	{
 
-		$table = 'cache_'.$language;
-
-		if($dbh)
+		if (in_array($_GET['lg'], $wikiSupportedLanguages)) 
 		{
-			// ==> We create the table if it doesn't exist
+			$language = $_GET['lg'];
 
-			$stmt = $dbh->prepare("CREATE TABLE IF NOT EXISTS $table ("
-				."`id` bigint(9) NOT NULL,"
-				."`latitude` float NOT NULL,"
-				."`longitude` float NOT NULL,"
-				."`name` text COLLATE utf8_bin NOT NULL,"
-				."`sitelink` text COLLATE utf8_bin NOT NULL,"
-				."`type_name` text COLLATE utf8_bin NOT NULL,"
-				."`type_id` bigint(9) NOT NULL,"
-				."`image_url` text COLLATE utf8_bin NOT NULL,"
-				."`lastupdate` date NOT NULL,"
-				."PRIMARY KEY (`id`)"
-				.") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin");
+			$table = 'cache_'.$language;
 
-			if (!$stmt->execute()) {
-			   print_r($stmt->errorInfo());
+			if($dbh)
+			{
+				// ==> We create the table if it doesn't exist
+
+				$stmt = $dbh->prepare("CREATE TABLE IF NOT EXISTS $table ("
+					."`id` bigint(9) NOT NULL,"
+					."`latitude` float NOT NULL,"
+					."`longitude` float NOT NULL,"
+					."`name` text COLLATE utf8_bin NOT NULL,"
+					."`sitelink` text COLLATE utf8_bin NOT NULL,"
+					."`type_name` text COLLATE utf8_bin NOT NULL,"
+					."`type_id` bigint(9) NOT NULL,"
+					."`image_url` text COLLATE utf8_bin NOT NULL,"
+					."`lastupdate` date NOT NULL,"
+					."PRIMARY KEY (`id`)"
+					.") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin");
+
+				if (!$stmt->execute()) {
+				   print_r($stmt->errorInfo());
+				}
+				unset($stmt);
 			}
-			unset($stmt);
 		}
+		else
+			$error = "Error : language is not supported.";
 	}
 	else
-		$error = "Error : language is not supported.";
+		$language = "en";
+	
 }
 
 // ============> INFO POINT OF INTEREST & WIKIVOYAGE GUIDES
