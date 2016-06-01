@@ -16,6 +16,7 @@ of WFLabs to find POI around (thanks btw).
 
 BETA
 
+1.2.0 : Changed cache requests to prepared statements. Better langugages support.
 1.1.1 : Minor bugfix and error gestion.
 1.1.0 : Added Cache support. The API is now a lot quicker if POI have already been visited.
 1.0.0 : Added thumbnail for POIs. New technology implemented, making the API faster.
