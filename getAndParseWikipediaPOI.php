@@ -5,7 +5,6 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	// ===> Call Wikipedia GeoSearch API to get pages around
 	$apidata_json_geosearch = file_get_contents("https://".$language.".wikipedia.org/w/api.php?action=query&list=geosearch&gslimit=".$maxPOI."&gsradius=".($range * 1000)."&gscoord=".$user_latitude."|".$user_longitude."&format=json");
 	$apidata_array_geosearch = json_decode($apidata_json_geosearch, true)['query']['geosearch'];
-
 	$wikipedia_pagesid_list = "";
 
 	// ===> Parse those data in the output array
@@ -13,6 +12,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 		$wikipedia_pagesid_list .= '|'.$currentPOIdata['pageid'];
 		$output_array[$currentPOIdata['pageid']]['latitude'] = $apidata_array_geosearch[$currentPOI]['lat'];
 		$output_array[$currentPOIdata['pageid']]['longitude'] = $apidata_array_geosearch[$currentPOI]['lon'];
+		$output_array[$currentPOIdata['pageid']]['distance'] = $apidata_array_geosearch[$currentPOI]['dist'];
 		$output_array[$currentPOIdata['pageid']]['wikipedia_id'] = $currentPOIdata['pageid'];
 	}
 	$wikipedia_pagesid_list = substr($wikipedia_pagesid_list, 1);
@@ -68,11 +68,18 @@ $language = 'fr';
 $user_latitude = "50.633333";
 $user_longitude = "3.0666667";
 $range = 1;
-$maxPOI = 10;
+$maxPOI = 2;
 
 echo '<html><pre>';
 
 print_r(getAndParseWikipediaPOI($language,$user_latitude,$user_longitude,$range,$maxPOI));
 
 
-echo '</pre></html>';
+echo '</pre></html>'; 
+
+/*
+TODO LIST ERROR GESTION
+- Case there is no POI at all
+- All cases where APIs are unreachable
+
+*/
