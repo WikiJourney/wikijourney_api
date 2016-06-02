@@ -1,6 +1,6 @@
 <?php
 require 'multiCurl.php';
-echo '<html><pre>';
+
 function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI)
 {
 	// ===> Apply limits of Wikipedia API
@@ -8,7 +8,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	$maxPOI = min($maxPOI, 500);
 
 	// ===> Call Wikipedia GeoSearch API to get pages around
-	echo $apidata_request_geosearch = "https://".$language.".wikipedia.org/w/api.php?action=query&list=geosearch&gslimit=".$maxPOI."&gsradius=".($range * 1000)."&gscoord=".$user_latitude."|".$user_longitude."&format=json";
+	$apidata_request_geosearch = "https://".$language.".wikipedia.org/w/api.php?action=query&list=geosearch&gslimit=".$maxPOI."&gsradius=".($range * 1000)."&gscoord=".$user_latitude."|".$user_longitude."&format=json";
 	if(!($apidata_json_geosearch = @file_get_contents($apidata_request_geosearch)))
 		return array("error" => "Wikipedia API is unreachable");
 
@@ -73,19 +73,3 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 
 	return $output_array;
 }
-
-
-error_reporting(E_ALL);
-ini_set('display_error', 1);
-$language = 'fr';
-$user_latitude = "50";
-$user_longitude = "3";
-$range = 10000;
-$maxPOI = 20000;
-
-
-
-print_r(getAndParseWikipediaPOI($language,$user_latitude,$user_longitude,$range,$maxPOI));
-
-
-echo '</pre></html>'; 
