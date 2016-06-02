@@ -18,11 +18,11 @@ function reqMultiCurls($urls) {
  
 	// loop through an array of URLs to initiate
 	// one cUrl handler for each URL (request)
-	foreach ($urls as $url) {
+	foreach ($urls as $key => $url) {
 		$ch = curl_init($url);
 		// tell cUrl option to return the response
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,TRUE);
-		$chs[] = $ch;
+		$chs[$key] = $ch;
 	}
  
 	// initiate a multi handler
@@ -41,7 +41,7 @@ function reqMultiCurls($urls) {
 	// retrieve the reponse from each single handler
 	foreach($chs as $key => $ch){
 		if(curl_errno($ch) == CURLE_OK){
-				$contents[] = curl_multi_getcontent($ch);
+				$contents[$key] = json_decode(curl_multi_getcontent($ch),true);
 		}
 		else{
 			echo "Err>>> ".curl_error($ch)."\n";
