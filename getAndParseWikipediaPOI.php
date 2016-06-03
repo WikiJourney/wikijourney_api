@@ -1,5 +1,4 @@
 <?php
-require 'multiCurl.php';
 
 function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI)
 {
@@ -14,7 +13,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 
 	// ===> Case their is no POI around at all
 	if(!($apidata_array_geosearch = @json_decode($apidata_json_geosearch, true)['query']['geosearch']))
-		return array("");
+		return array();
 
 	$wikipedia_pagesid_list = "";
 
