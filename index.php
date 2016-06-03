@@ -9,6 +9,7 @@ See documentation on http://api.wikijourney.eu/documentation.php
 
 require 'multiCurl.php';
 require 'getAndParseWikipediaPOI.php';
+require 'getAndParseWikivoyageGuides.php';
 
 error_reporting(E_ALL); // No need error reporting, or else it will crash the JSON export
 header('Content-Type: application/json'); // Set the header to UTF8
@@ -35,7 +36,6 @@ else {
 // ============> REQUIRED INFORMATIONS
 	if (isset($_GET['place'])) {
 		// If it's a place
-
 		$name = strval($_GET['place']);
 		$osm_array_json = file_get_contents('http://nominatim.openstreetmap.org/search?format=json&q="'.urlencode($name).'"'); // Contacting Nominatim API to have coordinates
 		$osm_array = json_decode($osm_array_json, true);
@@ -66,7 +66,7 @@ else {
 
 	}
 
-// ============> OPTIONNAL PARAMETERS
+// ============> OPTIONAL PARAMETERS
 	
 	//==> Range
 	if (isset($_GET['range'])) {
@@ -144,84 +144,33 @@ if (!isset($error)) {
 
 	// ==================================> Wikivoyage requests : find travel guides around
 	if ($wikivoyageSupport == 1) {
-		if ($displayImg == 1) {
-			// We add description and image
-
-			$wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
-.'prop=coordinates|info|pageterms|pageimages&' // Props list
-.'piprop=thumbnail&pithumbsize=144&pilimit=50&inprop=url&wbptterms=description' // Properties dedicated to image, url and description
-."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=10000&ggslimit=50"; // Properties dedicated to geosearch
-		} else {
-			// Simplified request
-
-			$wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
-.'prop=coordinates|info&' // Props list
-.'inprop=url' // Properties dedicated to url
-."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=10000&ggslimit=50"; // Properties dedicated to geosearch
-
-		}
-
-		$wikivoyage_json = file_get_contents($wikivoyageRequest); // Request is sent to WikiVoyage API
-
-		if ($wikivoyage_json == false) {
-			$error = 'API Wikivoyage is not responding.';
-		} 
-		else 
-		{
-			$wikivoyage_array = json_decode($wikivoyage_json, true);
-
-			if (isset($wikivoyage_array['query']['pages'])) 
+			// Call the magic function, check for error, and push in output array
+			$temp_WikiVoyage_output = getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude);
+			if(!array_key_exists('error',$temp_WikiVoyage_output))
 			{
-				// If there's guides around
-				$realCount = 0;
-
-				$wikivoyage_clean_array = array_values($wikivoyage_array['query']['pages']); // Reindexing the array (because it's initially indexed by pageid)
-
-				for ($i = 0; $i < count($wikivoyage_clean_array); ++$i) 
-				{
-					++$realCount;
-
-					$wikivoyage_output_array[$i]['pageid'] = $wikivoyage_clean_array[$i]['pageid'];
-					$wikivoyage_output_array[$i]['title'] = $wikivoyage_clean_array[$i]['title'];
-					$wikivoyage_output_array[$i]['sitelink'] = $wikivoyage_clean_array[$i]['fullurl'];
-
-					if (isset($wikivoyage_clean_array[$i]['coordinates'][0]['lat'])) {
-						// If there are coordinates
-						$wikivoyage_output_array[$i]['latitude'] = $wikivoyage_clean_array[$i]['coordinates'][0]['lat']; // Warning : could be null
-						$wikivoyage_output_array[$i]['longitude'] = $wikivoyage_clean_array[$i]['coordinates'][0]['lon']; // Warning : could be null
-					}
-
-					if (isset($wikivoyage_clean_array[$i]['thumbnail']['source'])) 
-					{ // If we can find an image
-						$wikivoyage_output_array[$i]['thumbnail'] = $wikivoyage_clean_array[$i]['thumbnail']['source'];
-					}
-				}
-				$output['guides']['nb_guides'] = $realCount;
-				if ($realCount != 0) 
-				{
-					$output['guides']['guides_info'] = array_values($wikivoyage_output_array);
-				}
-			} 
-			else 
-			{ // Case we're in the middle of Siberia
-				$output['guides']['nb_guides'] = 0;
+				$output['guides']['nb_guides'] = count($temp_WikiVoyage_output);
+				$output['guides']['guides_info'] = $temp_WikiVoyage_output;
 			}
-		}
+			else
+			{
+				$output['guides']['nb_guides'] = 0;
+				$output['guides']['guides_info'] = array();
+			}
 	}
-
 	// ==================================> End Wikivoyage requests
 
 	// ==================================> Wikidata requests : find wikipedia pages around
 
+	// Call the magic function, check for error, and push in output array
 	$temp_POI_output = getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI);
-	if(!in_array($temp_POI_output,'error'))
+	if(!array_key_exists('error',$temp_POI_output))
 	{
 		$output['poi']['poi_info'] = $temp_POI_output;
 		$output['poi']['nb_poi'] = count($output['poi']['poi_info']);	
 	}
 	else
 		$error = $temp_POI_output['error'];
-	
+	// ==================================> End Wikidata requests
 }
 
 if (isset($error)) {
@@ -232,8 +181,6 @@ if (isset($error)) {
 }
 
 echo json_encode($output); // Encode in JSON. (user will get it by file_get_contents, curl, wget, or whatever)
-
-unset($dbh); // Close the database.
 
 // Next line is a legacy, please don't touch.
 /* yolo la police */

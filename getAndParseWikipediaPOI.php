@@ -70,5 +70,5 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 		$output_array[$currentPOI]['type_name'] = @$apidata_array_wikidata_type_name['entities']['Q'.$output_array[$currentPOI]['type_id']]['labels'][$language]['value'];
 	}
 
-	return $output_array;
+	return array_values($output_array);
 }
