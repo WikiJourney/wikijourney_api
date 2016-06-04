@@ -28,19 +28,21 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	$wikipedia_pagesid_list = substr($wikipedia_pagesid_list, 1);
 
 	// ===> Now we got a list of wikipedia pages so we call Wikipedia API again to get infos on those pages
-	$apidata_request_wikipedia_info = "https://".$language.".wikipedia.org/w/api.php?format=json&action=query&prop=pageprops|info|pageimages&inprop=url&pilimit=1&pageids=".$wikipedia_pagesid_list;
+	$apidata_request_wikipedia_info = "https://".$language.".wikipedia.org/w/api.php?format=json&action=query&prop=pageprops|info|pageimages&inprop=url&pilimit=1000&pageids=".$wikipedia_pagesid_list;
 	if(!($apidata_json_wikipedia_info = @file_get_contents($apidata_request_wikipedia_info)))
 		return array("error" => "Wikipedia API is unreachable");
 
 	$apidata_array_wikipedia_info = json_decode($apidata_json_wikipedia_info,1);
 
 	// ===> Parse wikipedia return
+	$images_id_list = "";
 	foreach ($apidata_array_wikipedia_info['query']['pages'] as $currentPOI => $currentPOIdata) {
 		$output_array[$currentPOI]['name'] = $apidata_array_wikipedia_info['query']['pages'][$currentPOI]["title"];
 		$output_array[$currentPOI]['sitelink'] = $apidata_array_wikipedia_info['query']['pages'][$currentPOI]["fullurl"];
 		$output_array[$currentPOI]['wikidata_id'] = $apidata_array_wikipedia_info['query']['pages'][$currentPOI]["pageprops"]["wikibase_item"];
 		// We put an @ because it can be null
 		$output_array[$currentPOI]['image_url'] = @$apidata_array_wikipedia_info['query']['pages'][$currentPOI]["thumbnail"]["source"];
+
 		// And for each wikipedia POI, we add the URL to the list of links we're going to call for wikidata's info
 		$CURL_input_list[$currentPOI] = 'https://www.wikidata.org/w/api.php?action=wbgetclaims&format=json&property=P31&entity='.$output_array[$currentPOI]['wikidata_id'];
 	}
