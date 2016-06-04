@@ -1,6 +1,6 @@
 <?php
 
-function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI)
+function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI, $thumbnailWidth)
 {
 	// ===> Apply limits of Wikipedia API
 	$range = min($range, 10);
@@ -28,7 +28,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	$wikipedia_pagesid_list = substr($wikipedia_pagesid_list, 1);
 
 	// ===> Now we got a list of wikipedia pages so we call Wikipedia API again to get infos on those pages
-	$apidata_request_wikipedia_info = "https://".$language.".wikipedia.org/w/api.php?format=json&action=query&prop=pageprops|info|pageimages&inprop=url&pilimit=1000&pageids=".$wikipedia_pagesid_list;
+	$apidata_request_wikipedia_info = "https://".$language.".wikipedia.org/w/api.php?format=json&action=query&prop=pageprops|info|pageimages&inprop=url&pilimit=1000&pithumbsize=".$thumbnailWidth."&pageids=".$wikipedia_pagesid_list;
 	if(!($apidata_json_wikipedia_info = @file_get_contents($apidata_request_wikipedia_info)))
 		return array("error" => "Wikipedia API is unreachable");
 

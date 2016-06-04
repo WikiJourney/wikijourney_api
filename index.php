@@ -162,7 +162,7 @@ if (!isset($error)) {
 	// ==================================> Wikidata requests : find wikipedia pages around
 
 	// Call the magic function, check for error, and push in output array
-	$temp_POI_output = getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI);
+	$temp_POI_output = getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI, $thumbnailWidth);
 	if(!array_key_exists('error',$temp_POI_output))
 	{
 		$output['poi']['poi_info'] = $temp_POI_output;
