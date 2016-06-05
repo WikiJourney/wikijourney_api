@@ -3,7 +3,7 @@
 function getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude)
 {
 	// ===> Make the URL 
-	$wikivoyageRequest = 'https://'.$language.'.wikqzivoyage.org/w/api.php?action=query&format=json&' // Base
+	$wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
 	.'prop=coordinates|info|pageterms|pageimages&' // Props list
 	.'piprop=thumbnail&pithumbsize=144&pilimit=50&inprop=url&wbptterms=description' // Properties dedicated to image, url and description
 	."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=10000&ggslimit=50"; // Properties dedicated to geosearch
