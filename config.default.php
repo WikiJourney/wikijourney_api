@@ -2,7 +2,7 @@
 
 // ===> About the API
 
-$CONFIG_API_version = "v1.2";
+$CONFIG_API_version = "v2.0";
 $CONFIG_link = "https://www.wikijourney.eu/";
 $CONFIG_debug_mode = true;
 
@@ -21,8 +21,8 @@ $CONFIG_wikiSupportedLanguages = array('aa','ab','ace','ady','af','ak','als','am
 
 // ===> Default Values for API calls
 
-$CONFIG_default_range = 1;
+$CONFIG_default_range = 5;
 $CONFIG_default_maxPOI = 50;
-$CONFIG_default_wikivoyage_range = 10000;
+$CONFIG_default_wikivoyage_range = 10;
 $CONFIG_default_thumbnail_width = 500;
 $CONFIG_default_enable_wikivoyage = true;

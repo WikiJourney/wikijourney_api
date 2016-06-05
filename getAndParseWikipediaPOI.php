@@ -25,7 +25,6 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 		$output_array[$currentPOIdata['pageid']]['latitude'] = $apidata_array_geosearch[$currentPOI]['lat'];
 		$output_array[$currentPOIdata['pageid']]['longitude'] = $apidata_array_geosearch[$currentPOI]['lon'];
 		$output_array[$currentPOIdata['pageid']]['distance'] = $apidata_array_geosearch[$currentPOI]['dist'];
-		$output_array[$currentPOIdata['pageid']]['wikipedia_id'] = $currentPOIdata['pageid'];
 	}
 	$wikipedia_pagesid_list = substr($wikipedia_pagesid_list, 1);
 

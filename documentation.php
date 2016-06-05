@@ -9,10 +9,16 @@ type, description, and link to the Wikipedia's page when available.
 Since the Alpha 0.0.3 version, this API is also able to look for
 WikiVoyage guides around the user's position.
 
-This API is based on datas from WikiData, and uses the system
-of WFLabs to find POI around (thanks btw).
+This API is based on datas from Wikipedia, Wikidata, Wikivoyage,
+and use the OSM Nominatim.
 
--------------> Versions :
+-------------> VERSIONS :
+
+
+RELEASE
+
+2.0 : Complete refactoring making the API way more efficient.
+1.0 : API fully fonctionnal.
 
 BETA
 
@@ -39,16 +45,16 @@ Parameters could be (INS is for If Not Specified) :
 		- [REQUIRED]	lat : 		user's latitude
 		- [REQUIRED]	long : 		user's longitude
 		- [OPTIONNAL]	place :		If you want to do a request with a place name instead of coordinates. Uses OSM nominatim system.
-		- [INS 1km ]	range : 	Range around we're gonna find POI in kilometers
-		- [INS 10  ]	maxPOI : 	number max of POI
+		- [INS 5   ]	range : 	Range around we're gonna find POI in kilometers
+		- [INS 50  ]	maxPOI : 	number max of POI
 		- [INS en  ] 	lg :		language used
-		- [INS 0   ] 	wikivoyage :	contact or no WikiVoyage API. Value 0 or 1.
-		- [INS 0   ] 	displayImg :	download or no thumbnail adress from WikiVoyage. Value 0 or 1.
-		- [INS 500 ]	thumbnailWidth : maximum width of thumbnails from Wikipedia's article. Value is in px, and has to be numeric.
-		- [OPTIONNAL]	fakeError : 	use it if you need to test error on your device. It will simulate an error during the process.
+		- [INS 0   ] 	wikivoyage :		contact or no WikiVoyage API. Value 0 or 1.
+		- [INS 20  ] 	wikiVoyageRange :	range to look for wikivoyage guides around, in kilometers.
+		- [INS 500 ]	thumbnailWidth : 	maximum width of thumbnails from Wikipedia's article. Value is in px, and has to be numeric.
+		- [OPTIONNAL]	fakeError : 		use it if you need to test error on your device. It will simulate an error during the process.
 
 Example : 	http://api.wikijourney.eu/?lat=2&lon=2&lg=fr
-Example :	http://api.wikijourney.eu/?place=Washington&lg=en
+Example :	http://api.wikijourney.eu/?place=Washington&lg=en&wikivoyage=1
 
 -------------> OUTPUT :
 
@@ -73,29 +79,35 @@ Structure :
 - poi
 	- nb_poi
 	- poi_info ==> Contains the array with informations on POIs
+		- id (Wikipedia ID)
 		- latitude
 		- longitude
+		- distance (Distance in meters from user's position)
 		- name
 		- sitelink (could be null)
 		- image_url (link to thumbnail - could be null)
 		- type_name
 		- type_id
-		- id
+		- wikidata_id (id of the Wikidata page)
 - err_check
 	- value (true if there's an error)
 	- msg (defined only if value is set on true) : contains the error message
 
-Example :
+-------------> EXAMPLE :
+
+Input : http://api.wikijourney.eu/?wikivoyage=1&place=Lille&lg=en&maxPOI=1
+
+Output : 
 
 {
    "infos":{
       "source":"WikiJourney API",
-      "link":"http:\/\/wikijourney.eu\/",
-      "api_version":"alpha 0.0.2"
+      "link":"https:\/\/www.wikijourney.eu\/",
+      "api_version":"v2.0"
    },
    "user_location":{
-      "latitude":50,
-      "longitude":2
+      "latitude":"50.6305089",
+      "longitude":"3.0706414"
    },
    "guides":{
       "nb_guides":1,
@@ -105,7 +117,8 @@ Example :
             "title":"Lille",
             "sitelink":"https:\/\/en.wikivoyage.org\/wiki\/Lille",
             "latitude":50.6372,
-            "longitude":3.0633
+            "longitude":3.0633,
+            "thumbnail":"https:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/7\/77\/Lille-Place-du-General-de-Gaulle.jpg\/144px-Lille-Place-du-General-de-Gaulle.jpg"
          }
       ]
    },
@@ -113,14 +126,16 @@ Example :
       "nb_poi":1,
       "poi_info":[
          {
-            "latitude":50.007283,
-            "longitude":1.997088,
-            "name":"Longpre-les-Corps Saints British Cemetery",
-			"sitelink":null,
-            "type_name":"cemetery",
-            "type_id":39614,
-            "id":2364019,
-			"image_url":null
+            "id":24374320,
+            "name":"Siege of Lille (1792)",
+            "latitude":50.627777777778,
+            "longitude":3.0583333333333,
+            "distance":919.7,
+            "sitelink":"https:\/\/en.wikipedia.org\/wiki\/Siege_of_Lille_(1792)",
+            "wikidata_id":"Q3485925",
+            "image_url":"https:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/b\/b6\/Si%C3%A8ge_de_Lille_1792.JPG\/500px-Si%C3%A8ge_de_Lille_1792.JPG",
+            "type_id":188055,
+            "type_name":"siege"
          }
       ]
    },

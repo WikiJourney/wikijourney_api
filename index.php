@@ -1,7 +1,7 @@
 <?php
 /*
 ============================ WIKIJOURNEY API =========================
-Version Beta 1.1.2
+Version 2.0
 ======================================================================
 
 See documentation on http://api.wikijourney.eu/documentation.php
