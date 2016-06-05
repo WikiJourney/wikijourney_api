@@ -11,7 +11,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	if(!($apidata_json_geosearch = @file_get_contents($apidata_request_geosearch)))
 		return array("error" => "Wikipedia API is unreachable");
 
-	// ===> Case their is no POI around at all
+	// ===> Case there is no POI around at all
 	if(!($apidata_array_geosearch = @json_decode($apidata_json_geosearch, true)['query']['geosearch']))
 		return array();
 
