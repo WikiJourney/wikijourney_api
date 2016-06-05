@@ -20,6 +20,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	// ===> Parse those data in the output array
 	foreach ($apidata_array_geosearch as $currentPOI => $currentPOIdata) {
 		$wikipedia_pagesid_list .= '|'.$currentPOIdata['pageid'];
+		$output_array[$currentPOIdata['pageid']]['id'] = $currentPOIdata['pageid'];
 		$output_array[$currentPOIdata['pageid']]['latitude'] = $apidata_array_geosearch[$currentPOI]['lat'];
 		$output_array[$currentPOIdata['pageid']]['longitude'] = $apidata_array_geosearch[$currentPOI]['lon'];
 		$output_array[$currentPOIdata['pageid']]['distance'] = $apidata_array_geosearch[$currentPOI]['dist'];
