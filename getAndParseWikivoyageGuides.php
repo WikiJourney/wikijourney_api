@@ -1,12 +1,12 @@
 <?php
 
-function getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude)
+function getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude, $wikiVoyageRange)
 {
 	// ===> Make the URL 
 	$wikivoyageRequest = 'https://'.$language.'.wikivoyage.org/w/api.php?action=query&format=json&' // Base
 	.'prop=coordinates|info|pageterms|pageimages&' // Props list
 	.'piprop=thumbnail&pithumbsize=144&pilimit=50&inprop=url&wbptterms=description' // Properties dedicated to image, url and description
-	."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=10000&ggslimit=50"; // Properties dedicated to geosearch
+	."&generator=geosearch&ggscoord=$user_latitude|$user_longitude&ggsradius=".$wikiVoyageRange."&ggslimit=50"; // Properties dedicated to geosearch
 
 	// ===> Make the call and check
 	if(!($wikivoyage_json = @file_get_contents($wikivoyageRequest))) 

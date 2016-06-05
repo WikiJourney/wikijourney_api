@@ -7,25 +7,33 @@ Version Beta 1.1.2
 See documentation on http://api.wikijourney.eu/documentation.php
 */
 
+if(!file('config.php'))
+	die('No file config.php found. Please move config.default.php to config.php and set your values.');
+
 require 'multiCurl.php';
 require 'getAndParseWikipediaPOI.php';
 require 'getAndParseWikivoyageGuides.php';
+require 'config.php';
 
 error_reporting(E_ALL); // No need error reporting, or else it will crash the JSON export
 header('Content-Type: application/json'); // Set the header to UTF8
-$wikiSupportedLanguages = array('aa','ab','ace','ady','af','ak','als','am','an','ang','ar','arc','arz','as','ast','av','ay','az','azb','ba','bar','bat-smg','bcl','be','be-x-old','bg','bh','bi','bjn','bm','bn','bo','bpy','br','bs','bug','bxr','ca','cbk-zam','cdo','ce','ceb','ch','cho','chr','chy','ckb','co','cr','crh','cs','csb','cu','cv','cy','da','de','diq','dsb','dv','dz','ee','el','eml','en','eo','es','et','eu','ext','fa','ff','fi','fiu-vor','fj','fo','fr','frp','frr','fur','fy','ga','gag','gan','gd','gl','glk','gn','gom','got','gu','gv','ha','hak','haw','he','hi','hif','ho','hr','hsb','ht','hu','hy','hz','ia','id','ie','ig','ii','ik','ilo','io','is','it','iu','ja','jbo','jv','ka','kaa','kab','kbd','kg','ki','kj','kk','kl','km','kn','ko','koi','kr','krc','ks','ksh','ku','kv','kw','ky','la','lad','lb','lbe','lez','lg','li','lij','lmo','ln','lo','lrc','lt','ltg','lv','mai','map-bms','mdf','mg','mh','mhr','mi','min','mk','ml','mn','mo','mr','mrj','ms','mt','mus','mwl','my','myv','mzn','na','nah','nap','nds','nds-nl','ne','new','ng','nl','nn','no','nov','nrm','nso','nv','ny','oc','om','or','os','pa','pag','pam','pap','pcd','pdc','pfl','pi','pih','pl','pms','pnb','pnt','ps','pt','qu','rm','rmy','rn','ro','roa-rup','roa-tara','ru','rue','rw','sa','sah','sc','scn','sco','sd','se','sg','sh','si','simple','sk','sl','sm','sn','so','sq','sr','srn','ss','st','stq','su','sv','sw','szl','ta','te','tet','tg','th','ti','tk','tl','tn','to','tpi','tr','ts','tt','tum','tw','ty','tyv','udm','ug','uk','ur','uz','ve','vec','vep','vi','vls','vo','wa','war','wo','wuu','xal','xh','xmf','yi','yo','za','zea','zh','zh-classical','zh-min-nan','zh-yue','zu');
 
 // ============> Connect to DB. If unreachable, the script will work anyway.
-try {
-	$dbh = new PDO('mysql:host=localhost;dbname=wikijourney_cache', 'wikijourney_web', '');
-} catch (PDOException $e) {
-	$dbh = 0;
+if($CONFIG_cache_enabled)
+{
+	try {
+		$dbh = new PDO('mysql:host='.$CONFIG_DB_addr.';dbname='.$CONFIG_DB_name, $CONFIG_DB_user, $CONFIG_DB_password);
+	} catch (PDOException $e) {
+		$dbh = 0;
+	}
 }
+else
+	$dbh = 0;
 
 // ============> INFO SECTION
 $output['infos']['source'] = 'WikiJourney API';
-$output['infos']['link'] = 'http://wikijourney.eu/';
-$output['infos']['api_version'] = 'Beta 1.1.2';
+$output['infos']['link'] = $CONFIG_link;
+$output['infos']['api_version'] = $CONFIG_API_version;
 
 // ============> FAKE ERROR
 if (isset($_GET['fakeError']) && $_GET['fakeError'] == 'true') {
@@ -68,28 +76,15 @@ else {
 
 // ============> OPTIONAL PARAMETERS
 	
-	//==> Range
-	if (isset($_GET['range'])) {
-		$range = intval($_GET['range']);
-	} else {
-		$range = 1;
-	}
+	//==> Range, MaxPOI, WikiVoyage support and thumbnails width
 
-	//==> Max POI
-	if (isset($_GET['maxPOI'])) {
-		$maxPOI = intval($_GET['maxPOI']);
-	} else {
-		$maxPOI = 10;
-	}
-	
-	//==> Display images, wikivoyage support and thumbnail width
-	$displayImg = (isset($_GET['displayImg']) && $_GET['displayImg'] == 1) ? 1 : 0;
-	$wikivoyageSupport = (isset($_GET['wikivoyage']) && $_GET['wikivoyage'] == 1) ? 1 : 0;
-	if (isset($_GET['thumbnailWidth'])) {
-		$thumbnailWidth = intval($_GET['thumbnailWidth']);
-	} else {
-		$thumbnailWidth = 500;
-	}
+	// Syntax : test if param is written, if yes apply its valeur, or else apply default
+
+	$range = (isset($_GET['range'])) ? intval($_GET['range']) : $CONFIG_default_range;
+	$maxPOI = (isset($_GET['maxPOI'])) ? intval($_GET['maxPOI']) : $CONFIG_default_maxPOI;
+	$thumbnailWidth = (isset($_GET['thumbnailWidth']) && $_GET['thumbnailWidth'] == 1) ? intval($_GET['thumbnailWidth']) : $CONFIG_default_thumbnail_width;
+	$wikivoyageSupport = (isset($_GET['wikivoyage'])) ? $_GET['wikivoyage'] : $CONFIG_default_enable_wikivoyage;
+	$wikiVoyageRange = (isset($_GET['wikiVoyageRange'])) ? intval($_GET['wikiVoyageRange']) : $CONFIG_default_wikivoyage_range;
 
 	if (!(is_numeric($range) && is_numeric($maxPOI) && is_numeric($thumbnailWidth))) {
 		$error = 'Error : maxPOI, thumbnailWidth and range should be numeric values.';
@@ -99,7 +94,7 @@ else {
 	if(isset($_GET['lg']))
 	{
 
-		if (in_array($_GET['lg'], $wikiSupportedLanguages)) 
+		if (in_array($_GET['lg'], $CONFIG_wikiSupportedLanguages)) 
 		{
 			$language = $_GET['lg'];
 
@@ -145,7 +140,7 @@ if (!isset($error)) {
 	// ==================================> Wikivoyage requests : find travel guides around
 	if ($wikivoyageSupport == 1) {
 			// Call the magic function, check for error, and push in output array
-			$temp_WikiVoyage_output = getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude);
+			$temp_WikiVoyage_output = getAndParseWikivoyageGuides($language, $user_latitude, $user_longitude,$wikiVoyageRange);
 			if(!array_key_exists('error',$temp_WikiVoyage_output))
 			{
 				$output['guides']['nb_guides'] = count($temp_WikiVoyage_output);
