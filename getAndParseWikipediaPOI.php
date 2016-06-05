@@ -32,7 +32,7 @@ function getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $ra
 	if(!($apidata_json_wikipedia_info = @file_get_contents($apidata_request_wikipedia_info)))
 		return array("error" => "Wikipedia API is unreachable");
 
-	$apidata_array_wikipedia_info = json_decode($apidata_json_wikipedia_info,1);
+	$apidata_array_wikipedia_info = json_decode($apidata_json_wikipedia_info,true);
 
 	// ===> Parse wikipedia return
 	$images_id_list = "";

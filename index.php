@@ -15,7 +15,11 @@ require 'getAndParseWikipediaPOI.php';
 require 'getAndParseWikivoyageGuides.php';
 require 'config.php';
 
-error_reporting(E_ALL); // No need error reporting, or else it will crash the JSON export
+if($CONFIG_debug_mode)
+	error_reporting(E_ALL); 
+else
+	error_reporting(0); // No need error reporting, or else it will crash the JSON export
+
 header('Content-Type: application/json'); // Set the header to UTF8
 
 // ============> Connect to DB. If unreachable, the script will work anyway.
@@ -160,8 +164,8 @@ if (!isset($error)) {
 	$temp_POI_output = getAndParseWikipediaPOI($language, $user_latitude, $user_longitude, $range, $maxPOI, $thumbnailWidth);
 	if(!array_key_exists('error',$temp_POI_output))
 	{
+		$output['poi']['nb_poi'] = count($temp_POI_output);	
 		$output['poi']['poi_info'] = $temp_POI_output;
-		$output['poi']['nb_poi'] = count($output['poi']['poi_info']);	
 	}
 	else
 		$error = $temp_POI_output['error'];

@@ -4,6 +4,7 @@
 
 $CONFIG_API_version = "v1.2";
 $CONFIG_link = "https://www.wikijourney.eu/";
+$CONFIG_debug_mode = true;
 
 // ===> Caching system
 
