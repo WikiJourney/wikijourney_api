@@ -17,8 +17,8 @@ and use the OSM Nominatim.
 
 RELEASE
 
-2.0 : Complete refactoring making the API way more efficient.
-1.0 : API fully fonctionnal.
+2.0 : Complete refactoring making the API way more efficient. Temporarly disabled the cache.
+1.0 : API fully fonctional.
 
 BETA
 
@@ -44,14 +44,14 @@ Parameters could be (INS is for If Not Specified) :
 
 		- [REQUIRED]	lat : 		user's latitude
 		- [REQUIRED]	long : 		user's longitude
-		- [OPTIONNAL]	place :		If you want to do a request with a place name instead of coordinates. Uses OSM nominatim system.
+		- [OPTIONAL]	place :		If you want to do a request with a place name instead of coordinates. Uses OSM nominatim system.
 		- [INS 5   ]	range : 	Range around we're gonna find POI in kilometers
 		- [INS 50  ]	maxPOI : 	number max of POI
 		- [INS en  ] 	lg :		language used
 		- [INS 0   ] 	wikivoyage :		contact or no WikiVoyage API. Value 0 or 1.
 		- [INS 20  ] 	wikiVoyageRange :	range to look for wikivoyage guides around, in kilometers.
 		- [INS 500 ]	thumbnailWidth : 	maximum width of thumbnails from Wikipedia's article. Value is in px, and has to be numeric.
-		- [OPTIONNAL]	fakeError : 		use it if you need to test error on your device. It will simulate an error during the process.
+		- [OPTIONAL]	fakeError : 		use it if you need to test error on your device. It will simulate an error during the process.
 
 Example : 	http://api.wikijourney.eu/?lat=2&lon=2&lg=fr
 Example :	http://api.wikijourney.eu/?place=Washington&lg=en&wikivoyage=1
@@ -76,19 +76,20 @@ Structure :
 		- sitelink
 		- latitude
 		- longitude
+      - thumbnail (link to thumbnail - could be null)
 - poi
 	- nb_poi
 	- poi_info ==> Contains the array with informations on POIs
 		- id (Wikipedia ID)
-		- latitude
+		- name
+      - latitude
 		- longitude
 		- distance (Distance in meters from user's position)
-		- name
 		- sitelink (could be null)
+      - wikidata_id (id of the Wikidata page)
 		- image_url (link to thumbnail - could be null)
+      - type_id
 		- type_name
-		- type_id
-		- wikidata_id (id of the Wikidata page)
 - err_check
 	- value (true if there's an error)
 	- msg (defined only if value is set on true) : contains the error message
