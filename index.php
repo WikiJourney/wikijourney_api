@@ -102,7 +102,7 @@ else {
 
 	$range = (isset($_GET['range'])) ? intval($_GET['range']) : $CONFIG_default_range;
 	$maxPOI = (isset($_GET['maxPOI'])) ? intval($_GET['maxPOI']) : $CONFIG_default_maxPOI;
-	$thumbnailWidth = (isset($_GET['thumbnailWidth']) && $_GET['thumbnailWidth'] == 1) ? intval($_GET['thumbnailWidth']) : $CONFIG_default_thumbnail_width;
+	$thumbnailWidth = (isset($_GET['thumbnailWidth']) && is_numeric($_GET['thumbnailWidth'])) ? intval($_GET['thumbnailWidth']) : $CONFIG_default_thumbnail_width;
 	$wikivoyageSupport = (isset($_GET['wikivoyage'])) ? $_GET['wikivoyage'] : $CONFIG_default_enable_wikivoyage;
 	$wikiVoyageRange = (isset($_GET['wikiVoyageRange'])) ? intval($_GET['wikiVoyageRange']) : $CONFIG_default_wikivoyage_range;
 

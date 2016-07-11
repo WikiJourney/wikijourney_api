@@ -2,7 +2,7 @@
 
 // ===> About the API
 
-$CONFIG_API_version = "v2.0";
+$CONFIG_API_version = "v2.0.1";
 $CONFIG_link = "https://www.wikijourney.eu/";
 $CONFIG_debug_mode = true;
 
