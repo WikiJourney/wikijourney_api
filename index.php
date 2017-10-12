@@ -37,6 +37,7 @@ else
 	error_reporting(0); // No need error reporting, or else it will crash the JSON export
 
 header('Content-Type: application/json'); // Set the header to UTF8
+header('Access-Control-Allow-Origin: *'); // Allow CORS (this is an API).
 
 // ============> Connect to DB. If unreachable, the script will work anyway.
 if($CONFIG_cache_enabled)
