@@ -18,13 +18,13 @@ If you want to contribute, first: Thank you! Some advices though:
  - Please push to our `dev` branch, so we can integrate it with other features before merging into the master for a new release.
 
 Links :
-- [WikiJourney website](http://wikijourney.eu)
+- [WikiJourney website](https://wikijourney.eu)
 - [Facebook page](https://www.facebook.com/WikiJourney)
 - [Twitter account](https://twitter.com/WikiJourney)
 - [Website repository](https://github.com/WikiJourney/wikijourney_website/)
 - [App Repository](https://github.com/WikiJourney/wikijourney_app/)
 
-![wikijourney.logo](http://wikijourneydev.alwaysdata.net/images/design/logo.png)
+![WikiJourney Logo](https://wikijourneydev.alwaysdata.net/images/design/wj_logos/logo.png)
 
 If you're interested in making cities easier to visit, you can contribute to our project by improving our website or our application!
 
